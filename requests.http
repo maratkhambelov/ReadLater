@@ -1,0 +1,30 @@
+GET http://localhost:7777/items
+Accept: application/json
+
+###
+
+POST http://localhost:7777/items
+Content-Type: application/json
+
+{
+  "id": 0,
+  "name": "Drink Coffee",
+  "done": false
+}
+
+###
+
+POST http://localhost:7777/items
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Drink Coffee",
+  "done": true
+}
+
+###
+
+DELETE http://localhost:7777/items/1
+
+###
