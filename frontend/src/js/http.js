@@ -7,8 +7,19 @@ export class Http {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', this.url);
         xhr.addEventListener('load', () => {
-            const data = JSON.parse(xhr.responseText);
-            callback(data);
+            // когда был отправлен запрос и получен ответ
+            // 404, 405
+            console.log('loaded');
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                callback(data);
+            }
+        });
+        xhr.addEventListener('error', () => {
+           // когда ответ не получен, не удалось отправить запрос и т.д.
+        });
+        xhr.addEventListener('loadend', () => {
+           console.log('request completed');
         });
         xhr.send();
     }
@@ -17,7 +28,9 @@ export class Http {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', this.url);
         xhr.addEventListener('load', () => {
-            callback();
+            if (xhr.status === 200) {
+                callback();
+            }
         });
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(item));
@@ -27,7 +40,9 @@ export class Http {
         const xhr = new XMLHttpRequest();
         xhr.open('DELETE', `${this.url}/${id}`);
         xhr.addEventListener('load', () => {
-            callback();
+            if (xhr.status === 200) {
+                callback();
+            }
         });
         xhr.send();
     }
