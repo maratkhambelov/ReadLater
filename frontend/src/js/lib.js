@@ -18,8 +18,10 @@ export class BookList {
 
     add(item) {
         this.storage.add(item);
+
     }
     remove(item) {
         this.storage.remove(item);
+
     }
 }

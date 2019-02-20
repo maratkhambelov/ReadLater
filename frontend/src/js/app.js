@@ -1,7 +1,7 @@
 import {Http} from './http.js';
 import {Book} from './lib.js';
-// import {LocalStorage} from './storage.js';
-// import {BookList} from './lib.js';
+ import {LocalStorage} from './storage.js';
+ import {BookList} from './lib.js';
 
 
 const http = new Http('http://localhost:7777/items');
@@ -17,7 +17,7 @@ const searchedBooksEl = document.querySelector('#searchedbooks');
 // const statusEl = document.querySelector('#bookstatus')
 
  let  cachedItems = []
-//let  cachedItems = new BookList(new LocalStorage());
+const bookList  = new BookList(new LocalStorage());
 
 
 loadData();
@@ -63,21 +63,34 @@ addBookEl.addEventListener('click', async() => {
     const tagBook = tagBookEl.value;
 
     const book = new Book(nameBook, linkBook, tagBook);
+    bookList.add(book);
 
-    cachedItems.push(book);
     await http.save(book);
-
     await loadData();
 });
+
 bookListEl.addEventListener('click', async (evt) => {
     // evt.target -> EventTarget -> Object
+
+
+
     if (evt.target.getAttribute('data-action') === 'remove') {
         // Для упрощения -> while
         const id = evt.target.parentElement.getAttribute('data-id');
+        // function isThatItem(item) {
+        //     return item.id === id;
+        // }
+        // console.log(bookList);
+        // const deletedItem = bookList.items.find(isThatItem)
+        // console.log(deletedItem);
+        // bookList.remove(deletedItem);
+        bookList.remove(id);
         await http.removeById(id);
         await loadData();
     }
 });
+
+
 
 bookListEl.addEventListener('change', async (evt) => {
     if (evt.target.getAttribute('data-change') === 'done') {
