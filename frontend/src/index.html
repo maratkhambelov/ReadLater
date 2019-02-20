@@ -8,7 +8,24 @@
     <title>Document</title>
 </head>
 <body>
-<ul id="tasks"></ul>
+<button id="addbook">add</button>
+<button id="searchbook">search</button>
+<input type="text" id="namebook">
+<input type="text" id="linkbook">
+<input type="text" id="tagbook">
+<input type="radio" id="bookstatus">
+<div id="booklist">
+    <span>Прочитать</span>
+    <ul id="bookstoread">
+    </ul>
+    <span>Прочитано</span>
+    <ul id="booksreaded">
+    </ul>
+    <span>Результат</span>
+    <ul id="searchedbooks">
+    </ul>
+</div>
+
 <script src="js/http.js" type="module"></script>
 <script src="js/app.js" type="module"></script>
 </body>

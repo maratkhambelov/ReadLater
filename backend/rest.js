@@ -19,8 +19,11 @@ server.pre((req, res, next) => {
 
 let nextId = 1;
 const items = [
-    {id: nextId++, name: 'Add Bootstrap', done: false},
-    {id: nextId++, name: 'Write tests', done: false},
+    {id: nextId++, name: 'harryPotter', link: 'a', tag: 'b', done: false},
+    {id: nextId++, name: 'wiki', link: 'a', tag: 'c', done: false},
+    {id: nextId++, name: '12', link: 'a', tag: 'd', done: false},
+    {id: nextId++, name: '13', link: 'a', tag: 'e', done: false},
+    {id: nextId++, name: '12', link: 'a', tag: 'f', done: false}
 ];
 
 server.get('/items', (req, res, next) => {
@@ -28,8 +31,12 @@ server.get('/items', (req, res, next) => {
     next();
 });
 
+
+
 server.post('/items', (req, res, next) => {
+
     const {id} = req.body;
+    console.log({id});
     if (typeof id !== 'number') {
         next(new BadRequestError('Invalid JSON, must contain id'));
         return;
@@ -38,10 +45,17 @@ server.post('/items', (req, res, next) => {
     if (id === 0) {
         req.body.id = nextId++;
         items.push(req.body);
-    } else {
+
+    }
+
+    else {
         const index = items.findIndex((value) => {
+
+            console.log('value.id ' + value.id);
+            console.log('value.name ' + value.name);
             return value.id === id;
         });
+
 
         if (index === -1) {
             next(new NotFoundError('Item not found'));
@@ -50,13 +64,13 @@ server.post('/items', (req, res, next) => {
 
         items[index] = req.body;
     }
-
     res.send();
     next();
 });
 
 server.del('/items/:id', (req, res, next) => {
     const id = Number(req.params.id);
+    console.log(id);
     if (isNaN(id)) {
         return next(new BadRequestError('Invalid id'));
     }

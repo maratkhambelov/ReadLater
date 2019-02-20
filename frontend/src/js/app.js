@@ -1,10 +1,75 @@
 import {Http} from './http.js';
+import {Book} from './lib.js';
+// import {LocalStorage} from './storage.js';
+// import {BookList} from './lib.js';
+
 
 const http = new Http('http://localhost:7777/items');
-const ulEl = document.querySelector('#tasks');
-let cachedItems = [];
+const booksToReadEl = document.querySelector('#bookstoread');
+const booksReadedEl = document.querySelector('#booksreaded')
+const addBookEl = document.querySelector('#addbook');
+const nameBookEl = document.querySelector('#namebook');
+const bookListEl = document.querySelector('#booklist');
+const searchBookEl = document.querySelector('#searchbook');
+const linkBookEl = document.querySelector('#linkbook');
+const tagBookEl = document.querySelector('#tagbook');
+const searchedBooksEl = document.querySelector('#searchedbooks');
+// const statusEl = document.querySelector('#bookstatus')
 
-ulEl.addEventListener('click', async (evt) => {
+ let  cachedItems = []
+//let  cachedItems = new BookList(new LocalStorage());
+
+
+loadData();
+
+
+
+
+searchBookEl.addEventListener('click', () => {
+    searchedBooksEl.innerHTML = '';
+
+    const nameBook = nameBookEl.value;
+    const linkBook = linkBookEl.value;
+    const tagBook = tagBookEl.value;
+
+
+    function filterBy(item) {
+        if (item.name === nameBook
+            || item.link === linkBook
+            || item.tag === tagBook) {
+            return true
+        }
+        return false;
+    }
+    const cachedItemsFiltered = cachedItems.filter(filterBy)
+    // console.log(cachedItemsFiltered)
+
+    cachedItemsFiltered.forEach((item) => {
+
+        const liFilteredEl = document.createElement('li');
+        liFilteredEl.innerHTML = `
+        <span>${item.name} ${item.link} ${item.tag}</span>
+        `
+            searchedBooksEl.appendChild(liFilteredEl);
+    });
+
+    });
+
+
+addBookEl.addEventListener('click', async() => {
+
+    const nameBook = nameBookEl.value;
+    const linkBook = linkBookEl.value;
+    const tagBook = tagBookEl.value;
+
+    const book = new Book(nameBook, linkBook, tagBook);
+
+    cachedItems.push(book);
+    await http.save(book);
+
+    await loadData();
+});
+bookListEl.addEventListener('click', async (evt) => {
     // evt.target -> EventTarget -> Object
     if (evt.target.getAttribute('data-action') === 'remove') {
         // Для упрощения -> while
@@ -14,27 +79,35 @@ ulEl.addEventListener('click', async (evt) => {
     }
 });
 
-ulEl.addEventListener('change', async (evt) => {
+bookListEl.addEventListener('change', async (evt) => {
     if (evt.target.getAttribute('data-change') === 'done') {
         const id = Number(evt.target.parentElement.parentElement.getAttribute('data-id'));
+        console.log(evt.target.parentElement.parentElement.getAttribute('data-id'));
         const item = cachedItems.find((value) => {
             return value.id === id;
         });
         item.done = evt.target.checked;
         await http.save(item);
+
         await loadData();
     }
 });
 
-loadData(); // -> Promise
+
+
+
+// loadData(); // -> Promise
 
 async function loadData() {
     try {
         const response = await http.getAll(); // http.getAll() -> Promise (запоминает эту точку, чтобы вернуться сюда тогда, когда промис разрешится)
-        cachedItems = await response.json(); // Promise ->
-        console.log(cachedItems);
 
-        ulEl.innerHTML = '';
+        cachedItems = await response.json(); // Promise ->
+
+
+
+        booksToReadEl.innerHTML = '';
+        booksReadedEl.innerHTML = '';
 
         cachedItems.forEach((item) => {
             const liEl = document.createElement('li');
@@ -46,7 +119,14 @@ async function loadData() {
               `;
             const checkboxEl = liEl.querySelector('[data-change=done]');
             checkboxEl.checked = item.done;
-            ulEl.appendChild(liEl);
+
+            console.log(item.done);
+            if(item.done === false) {
+                booksToReadEl.appendChild(liEl);
+            } else {
+                booksReadedEl.appendChild(liEl);
+            }
+
         });
 
     } catch (e) {
