@@ -72,18 +72,14 @@ addBookEl.addEventListener('click', async() => {
 bookListEl.addEventListener('click', async (evt) => {
     // evt.target -> EventTarget -> Object
 
-
-
     if (evt.target.getAttribute('data-action') === 'remove') {
         // Для упрощения -> while
         const id = evt.target.parentElement.getAttribute('data-id');
         // function isThatItem(item) {
         //     return item.id === id;
+        //     console.log(item.id)
         // }
-        // console.log(bookList);
         // const deletedItem = bookList.items.find(isThatItem)
-        // console.log(deletedItem);
-        // bookList.remove(deletedItem);
         bookList.remove(id);
         await http.removeById(id);
         await loadData();
