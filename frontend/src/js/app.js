@@ -16,14 +16,11 @@ const tagBookEl = document.querySelector('#tagbook');
 const searchedBooksEl = document.querySelector('#searchedbooks');
 // const statusEl = document.querySelector('#bookstatus')
 
- let  cachedItems = []
+let  cachedItems = [];
 const bookList  = new BookList(new LocalStorage());
 
 
 loadData();
-
-
-
 
 searchBookEl.addEventListener('click', () => {
     searchedBooksEl.innerHTML = '';
@@ -74,14 +71,14 @@ bookListEl.addEventListener('click', async (evt) => {
 
     if (evt.target.getAttribute('data-action') === 'remove') {
         // Для упрощения -> while
-        const id = evt.target.parentElement.getAttribute('data-id');
+        const id = Number(evt.target.parentElement.getAttribute('data-id'));
         // function isThatItem(item) {
         //     return item.id === id;
         //     console.log(item.id)
         // }
         // const deletedItem = bookList.items.find(isThatItem)
-        bookList.remove(id);
         await http.removeById(id);
+        bookList.removeById(id); // вы прописываете id, а remove у вас ждёт item
         await loadData();
     }
 });
@@ -113,8 +110,6 @@ async function loadData() {
 
         cachedItems = await response.json(); // Promise ->
 
-
-
         booksToReadEl.innerHTML = '';
         booksReadedEl.innerHTML = '';
 
@@ -137,6 +132,9 @@ async function loadData() {
             }
 
         });
+
+
+        bookList.items = cachedItems;
 
     } catch (e) {
         // e -> ошибка
