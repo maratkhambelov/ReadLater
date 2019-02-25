@@ -8,13 +8,31 @@
     <title>Document</title>
 </head>
 <body>
-<button id="addbook">add</button>
-<button id="searchbook">search</button>
-<input type="text" id="namebook">
-<input type="text" id="linkbook">
-<input type="text" id="tagbook">
-<input type="radio" id="bookstatus">
+<div id="inputinfo">
+    <button id="addbook">add</button>
+    <button id="searchbook">search</button>
+    <br>
+    <br>
+    <label>Название:
+        <input type="text" id="namebook">
+    </label>
+    <label>Ссылка:
+        <input type="text" id="linkbook">
+    </label>
+    <br>
+    <label>Тэг:
+        <input type="text" id="tagbook">
+    </label>
+    <label>Прочитано/Не прочитано:
+        <select id="bookstatus">
+            <option></option>
+            <option>Readed</option>
+            <option>Unreaded</option>
+        </select>
+    </label>
+</div>
 <div id="booklist">
+    <br>
     <span>Прочитать</span>
     <ul id="bookstoread">
     </ul>
