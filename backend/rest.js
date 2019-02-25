@@ -19,11 +19,12 @@ server.pre((req, res, next) => {
 
 let nextId = 1;
 const items = [
-    {id: nextId++, name: 'harryPotter', link: 'a', tag: 'b', done: false},
-    {id: nextId++, name: 'wiki', link: 'a', tag: 'c', done: false},
-    {id: nextId++, name: '12', link: 'a', tag: 'd', done: false},
-    {id: nextId++, name: '13', link: 'a', tag: 'e', done: false},
-    {id: nextId++, name: '12', link: 'a', tag: 'f', done: false}
+    {id: nextId++, name: 'harryPotter', link: '1', tag: '1', done: false},
+    {id: nextId++, name: '10', link: '2', tag: '2', done: false},
+    {id: nextId++, name: '11', link: '3', tag: '3', done: false},
+    {id: nextId++, name: '12', link: '11', tag: '4', done: false},
+    {id: nextId++, name: '13', link: '5', tag: '5', done: false},
+    {id: nextId++, name: '12', link: '12', tag: '4', done: false}
 ];
 
 server.get('/items', (req, res, next) => {
