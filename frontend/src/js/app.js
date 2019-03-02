@@ -16,6 +16,7 @@ const tagBookEl = document.querySelector('#tagbook');
 const searchedBooksEl = document.querySelector('#searchedbooks');
 const statusEl = document.querySelector('#bookstatus')
 const inputInfoEl = document.querySelector('#inputinfo')
+const searchInputEl = document.querySelector('#searchinput');
 
 let cachedItems = [];
 let cachedItemsFiltered = [];
@@ -25,64 +26,115 @@ const bookList  = new BookList(new LocalStorage());
 loadData();
 
 searchBookEl.addEventListener('click', (evt) => {
-
     searchedBooksEl.innerHTML = '';
+
     const nameBook = nameBookEl.value;
     const linkBook = linkBookEl.value;
     const tagBook = tagBookEl.value;
     let status = statusEl.value;
 
+    let filterByName = []
+    let filterByTag = []
+    let filterByNameTag = [];
+    let cachedItemsFiltered = [];
 
+    if(linkBook != '') {
+        const filterByLink = cachedItems.filter(item => item.link === linkBook);
 
-    const filterByName = cachedItems.filter(item => item.name === nameBook);
-    console.log('filterByName');
-    console.log(filterByName);
-    const filterByLink = cachedItems.filter(item => item.link === linkBook);
-    console.log('filterByLink');
-    console.log(filterByLink);
-    const filterByTag = cachedItems.filter(item => item.tag === tagBook);
-    console.log('filterByTag');
-    console.log(filterByTag);
-    let filteredArrThree = filterByName.concat(filterByLink, filterByTag);
-    console.log('filteredArrThree')
-    console.log(filteredArrThree);
-    let filteredArr = filteredArrThree;
-
-    console.log(filteredArr);
-    for(let v = 0; v < filteredArr.length; v++) {
-        console.log('filteredArr[v] ' + filteredArr[v].id);
-        for(let i = 0; i < filteredArr.length; i++) {
-            console.log('filteredArr[i] ' + filteredArr[i].id);
-            if(filteredArr[v].id === filteredArr[i].id) {
-                console.log('filteredArr.splice ' + filteredArr[i].id);
-                filteredArr.splice(i, 1);
-            }
+        if(filterByLink.length > 0) {
+            cachedItemsFiltered = filterByLink;
+            createItemsFiltered();
+            return;
         }
     }
-    console.log(filteredArr);
-    filteredByStatus(status, filteredArr);
+    if(nameBook != '') {
+        filterByName = cachedItems.filter(item => item.name === nameBook);
+        console.log(filterByName.length);
+    }
+
+    if(tagBook != '') {
+        filterByTag = cachedItems.filter(item => item.tag === tagBook);
+        console.log(filterByTag.length)
+    }
+
+    if(filterByTag.length > 0 && filterByName.length > 0) {
+        filterByNameTag = filterByName.concat(filterByTag);
+
+        const uniqueItems = filterByNameTag.filter((value, index, array) => {
+            return index === array.findIndex(o => o.id === value.id);
+        });
+
+        const preciseFilterByNameTag = uniqueItems.filter(finalFilter);
+        if(status != '') {
+            console.log(preciseFilterByNameTag);
+            cachedItemsFiltered = filteredByStatus(status, preciseFilterByNameTag);
+            console.log(cachedItemsFiltered);
+            createItemsFiltered();
+            return;
+        }
+            const finalFilterNoStatus = preciseFilterByNameTag.filter(finalFilter);
+            console.log(finalFilterNoStatus);
+            cachedItemsFiltered = finalFilterNoStatus;
+            createItemsFiltered();
+            return;
+    }
+
+    filterByNameTag = filterByName.concat(filterByTag);
+
+    if(status != '') {
+        cachedItemsFiltered = [];
+        cachedItemsFiltered = filteredByStatus(status, filterByNameTag)
+        console.log(cachedItemsFiltered)
+        createItemsFiltered();
+        return;
+    }
+    const finalFilterNoStatus = filterByNameTag.filter(finalFilter);
+    console.log(finalFilterNoStatus);
+    cachedItemsFiltered = finalFilterNoStatus;
+    createItemsFiltered();
+
+
+    function finalFilter(item) {
+        if (item.name === nameBook && item.tag === tagBook) {
+            console.log(item.name);
+            console.log(nameBook);
+            return true
+        }
+        return false;
+    }
 
     function filteredByStatus (statusValue, statusFilteredArray) {
 
         if(statusValue !== '') {
             if (statusValue === 'Readed') {
                 const filterByTrue = statusFilteredArray.filter(item => item.done === true);
-                console.log(filterByTrue);
+                const finalFilterByTrue = filterByTrue.filter(finalFilter);
+                console.log(finalFilterByTrue);
+                return finalFilterByTrue;
                 // filterByName.concat(filterByTrue, filterByLink, filterByTag);
             }
             if (statusValue === 'Unreaded') {
                 const filterByFalse = statusFilteredArray.filter(item => item.done === false);
-                console.log(filterByFalse);
+                const finalFilterByFalse = filterByFalse.filter(finalFilter);
+                console.log(finalFilterByFalse);
+                return finalFilterByFalse;
             }
         }
     }
 
-    //TODO: соединить в едино массивы (возможно concat)
+    function createItemsFiltered () {
 
+        cachedItemsFiltered.forEach((item) => {
+            console.log(cachedItemsFiltered);
+            const liFilteredEl = document.createElement('li');
+            console.log(item);
+            liFilteredEl.innerHTML = `
+                <span>${item.name} ${item.link} ${item.tag}</span>`
+            searchedBooksEl.appendChild(liFilteredEl);
+        });
+    }
 
-    });
-
-
+});
 
 addBookEl.addEventListener('click', async() => {
 
@@ -92,6 +144,7 @@ addBookEl.addEventListener('click', async() => {
 
     const book = new Book(nameBook, linkBook, tagBook);
     const filterLink = cachedItems.filter(item =>  item.link === linkBook);
+    console.log(cachedItems);
     if(filterLink.length >= 1) {
         console.log('Такая ссылка уже существует')
         return ;
@@ -129,14 +182,11 @@ bookListEl.addEventListener('change', async (evt) => {
 
 
 
-// loadData(); // -> Promise
 
 async function loadData() {
     try {
-        const response = await http.getAll(); // http.getAll() -> Promise (запоминает эту точку, чтобы вернуться сюда тогда, когда промис разрешится)
-
-        cachedItems = await response.json(); // Promise ->
-
+        const response = await http.getAll();
+        cachedItems = await response.json();
 
 
         booksToReadEl.innerHTML = '';
@@ -163,9 +213,6 @@ async function loadData() {
         bookList.items = cachedItems;
         cachedItemsFiltered = cachedItems;
 
-
-
-
     } catch (e) {
         // e -> ошибка
         console.log(e);
@@ -177,39 +224,6 @@ async function loadData() {
 
 
 
-
-// function filterByStatusUnreaded(item) {
-//     if (item.done === false) {
-//         return true
-//     }
-//     return false
-// }
-// function  filterByStatusReaded(item) {
-//     if (item.done === true) {
-//         return true
-//     }
-//     return false
-// }
-// if(status === 'Unreaded') {
-//     const cachedItemsFilteredByFalse = cachedItemsFiltered.filter(filterByStatusUnreaded);
-//     cachedItemsFilteredByFalse.forEach((item) => {
-//
-//         const liFilteredEl = document.createElement('li');
-//         liFilteredEl.innerHTML = `
-//         <span>${item.name} ${item.link} ${item.tag}</span>`
-//         searchedBooksEl.appendChild(liFilteredEl);
-//     });
-// }
-// if (status === 'Readed') {
-//     const cachedItemsFilteredByTrue = cachedItemsFiltered.filter(filterByStatusReaded)
-//     cachedItemsFilteredByTrue.forEach((item) => {
-//
-//         const liFilteredEl = document.createElement('li');
-//         liFilteredEl.innerHTML = `
-//         <span>${item.name} ${item.link} ${item.tag}</span>`
-//         searchedBooksEl.appendChild(liFilteredEl);
-//     });
-// }
 
 
 // if(nameBook === '' && linkBook === '' && tagBook === '' && status === '') {
@@ -248,3 +262,16 @@ async function loadData() {
 //         searchedBooksEl.appendChild(liFilteredEl);
 //     });
 // }
+
+// for(let v = 0; v < filteredArr.length; v++) {
+//     console.log('filteredArr[v] ' + filteredArr[v].id);
+//     for(let i = 1; i < filteredArr.length; i++) {
+//         console.log('filteredArr[i] ' + filteredArr[i].id);
+//         if(filteredArr[v].id === filteredArr[i].id) {
+//             console.log('filteredArr.splice ' + filteredArr[i].id);
+//             filteredArr.splice(i, 1);
+//         }
+//     }
+// }
+
+//    filteredByStatus(status, filteredArr);
