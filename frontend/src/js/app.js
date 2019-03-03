@@ -1,7 +1,7 @@
 import {Http} from './http.js';
 import {Book} from './lib.js';
- import {LocalStorage} from './storage.js';
- import {BookList} from './lib.js';
+import {LocalStorage} from './storage.js';
+import {BookList} from './lib.js';
 
 
 const http = new Http('http://localhost:7777/items');
