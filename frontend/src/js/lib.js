@@ -15,13 +15,17 @@ export class BookList {
     get items() {
         return this.storage.items;
     }
+    set items(value) {
+        this.storage.items = value;
+        this.storage.save();
+    }
 
     add(item) {
         this.storage.add(item);
 
     }
-    remove(item) {
-        this.storage.remove(item);
+    removeById(id) {
+        this.storage.removeById(id);
 
     }
 }
